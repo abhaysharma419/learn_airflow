@@ -9,11 +9,16 @@ try:
 except Exception as e:
     print("Error  {} ".format(e))
 
-def first_function_execute(**kwargs):
-    name = kwargs.get("name","key not found!")
-    print(f"Hello world {name}")
-    return "Hello World!!!!" +name
+def first_function_execute(**context):
+    # name = kwargs.get("name","key not found!")
+    context['ti'].xcom_push(key="newkey",value="first_function_execute data flow")
+    # print(f"Hello world {name}")
+    # return "Hello World!!!!" +name
 
+def second_function_execute(**context):
+    # name = kwargs.get("name","key not found!")
+    var = context['ti'].xcom_pull(key="newkey")
+    print(f"In second function now and got the data from first function as :{var}")
 with DAG(
     dag_id="first_dag",
     schedule_interval="@daily",
@@ -28,5 +33,13 @@ with DAG(
     first_function_execute=PythonOperator(
         task_id="first_function_execute",
         python_callable= first_function_execute,
-        op_kwargs={"name":"abhay"}
+        provide_context=True,
+        # op_kwargs={"name":"abhay"}
     )
+    second_function_execute=PythonOperator(
+        task_id="second_function_execute",
+        python_callable= second_function_execute,
+        provide_context=True,
+        # op_kwargs={"name":"abhay"}
+    )
+first_function_execute >> second_function_execute
