@@ -9,9 +9,10 @@ try:
 except Exception as e:
     print("Error  {} ".format(e))
 
-def first_function_execute():
-    print("Hello world!!")
-    return "Hello World!!!!"
+def first_function_execute(**kwargs):
+    name = kwargs.get("name","key not found!")
+    print(f"Hello world {name}")
+    return "Hello World!!!!" +name
 
 with DAG(
     dag_id="first_dag",
@@ -26,5 +27,6 @@ with DAG(
 ) as f:
     first_function_execute=PythonOperator(
         task_id="first_function_execute",
-        python_callable= first_function_execute
+        python_callable= first_function_execute,
+        op_kwargs={"name":"abhay"}
     )
